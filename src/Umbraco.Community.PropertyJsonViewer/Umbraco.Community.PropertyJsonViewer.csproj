@@ -11,7 +11,7 @@
     <PackageId>Umbraco.Community.PropertyJsonViewer</PackageId>
     <Product>Umbraco.Community.PropertyJsonViewer</Product>
     <Title>Umbraco Property JSON Viewer</Title>
-    <Description>See the raw value Umbraco has stored for any document property, next to what the property editor holds.</Description>
+    <Description>See and fix the raw value Umbraco stores for any document property, right from the backoffice.</Description>
     <PackageTags>umbraco;umbraco-marketplace;json;debugging;property-editor</PackageTags>
     <!--
       One package version line per Umbraco major (ADR 0001): 17.x.y for Umbraco 17, 18.x.y for 18. Releases set
