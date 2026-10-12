@@ -41,12 +41,27 @@ export function displayEditorValue(value: unknown): ValueDisplay {
   return { kind: "text", text: String(value) };
 }
 
+/** What the Diff tab shows: a note that the two values match, or the two texts to diff. */
+export type ValueComparison =
+  { same: true } | { same: false; original: string; modified: string; language: "json" | "plaintext" };
+
 /**
- * The text a display shows, for comparing two values; an empty value compares as the empty string.
+ * Compares the stored draft with the editor value as they are displayed, so JSON that differs only in
+ * whitespace or formatting counts as the same. An empty value compares as the empty string.
  *
- * @param display - The display to read.
- * @returns Its text.
+ * @param stored - The stored draft, as {@link displayStoredValue} prepared it.
+ * @param editor - The editor value, as {@link displayEditorValue} prepared it.
+ * @returns Whether they match, and if not, the texts to diff. The language is JSON only when both sides are
+ *   JSON; otherwise JSON highlighting would flag the other side as invalid.
  */
-export function displayText(display: ValueDisplay): string {
-  return display.kind === "empty" ? "" : display.text;
+export function compareValues(stored: ValueDisplay, editor: ValueDisplay): ValueComparison {
+  const original = stored.kind === "empty" ? "" : stored.text;
+  const modified = editor.kind === "empty" ? "" : editor.text;
+  if (original === modified) return { same: true };
+  return {
+    same: false,
+    original,
+    modified,
+    language: stored.kind === "json" && editor.kind === "json" ? "json" : "plaintext",
+  };
 }

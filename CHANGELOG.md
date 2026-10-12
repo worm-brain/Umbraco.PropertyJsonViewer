@@ -15,3 +15,6 @@ All notable changes to this package are recorded here. Versions follow one line 
   available to users who have it on the document; nobody has it until an administrator assigns it.
 - `PropertyJsonViewer:Enabled` in appsettings (default `true`). When false, the package's endpoints return 404
   and the action is not shown.
+- Editor, Stored and Diff tabs in the drawer. Editor shows the value the property editor holds now, unsaved
+  edits included; Diff compares it with the stored draft in Monaco's diff view. The drawer reopens on the tab
+  last chosen.

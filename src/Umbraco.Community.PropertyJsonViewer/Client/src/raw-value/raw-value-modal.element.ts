@@ -1,26 +1,53 @@
-import { css, customElement, html, nothing, state } from "@umbraco-cms/backoffice/external/lit";
+import { css, customElement, html, nothing, repeat, state } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
+import { UMB_PROPERTY_CONTEXT } from "@umbraco-cms/backoffice/property";
 import { UmbApiError } from "@umbraco-cms/backoffice/resources";
 import type { RawValueModalData } from "./raw-value-modal.token.js";
+import { initialTab, type RawValueTab } from "./raw-value-tabs.js";
 import { fetchStoredValue, type StoredValueResponse } from "./stored-value.api.js";
-import { displayStoredValue } from "./value-display.js";
+import { compareValues, displayEditorValue, displayStoredValue, type ValueDisplay } from "./value-display.js";
+import "./value-diff.element.js";
 import "./value-view.element.js";
 
 /** The stored value request's state while the drawer is open. */
 type StoredState =
   { status: "loading" } | { status: "loaded"; value: StoredValueResponse } | { status: "error"; message: string };
 
+const TAB_LABELS: Record<RawValueTab, string> = { editor: "Editor", stored: "Stored", diff: "Diff" };
+
+// The tab last chosen in any drawer, kept for the rest of the backoffice session (until the page reloads).
+let rememberedTab: RawValueTab | undefined;
+
 /**
- * The raw value drawer. Shows which property, variant and editor the values belong to, and the values Umbraco
- * has stored for it.
+ * The raw value drawer. Shows which property, variant and editor the values belong to, then three tabs: the
+ * value the property editor holds now (unsaved edits included), the values Umbraco has stored, and the
+ * difference between the editor value and the stored draft.
  */
 @customElement("pjv-raw-value-modal")
 export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData, never> {
   @state()
   private _stored: StoredState = { status: "loading" };
 
+  @state()
+  private _editor: ValueDisplay = { kind: "empty" };
+
+  @state()
+  private _tab: RawValueTab = "stored";
+
+  #tabs: Array<RawValueTab> = ["editor", "stored", "diff"];
+
+  constructor() {
+    super();
+    // The modal forwards context requests to the element that opened it, so this is the property whose "..."
+    // menu was used. Observing keeps the Editor tab live while the editor changes behind the drawer.
+    this.consumeContext(UMB_PROPERTY_CONTEXT, (property) => {
+      this.observe(property?.value, (value) => (this._editor = displayEditorValue(value)), "observeEditorValue");
+    });
+  }
+
   override connectedCallback(): void {
     super.connectedCallback();
+    this._tab = initialTab(this.#tabs, rememberedTab);
     void this.#loadStored();
   }
 
@@ -45,13 +72,31 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
         : { status: "loaded", value: response as StoredValueResponse };
   }
 
+  #selectTab(tab: RawValueTab) {
+    this._tab = tab;
+    rememberedTab = tab;
+  }
+
   override render() {
     const data = this.data;
     if (!data) return nothing;
 
     return html`
       <umb-body-layout headline=${`Raw value: ${this.localize.string(data.propertyLabel)}`}>
-        ${this.#renderProperty(data)} ${this.#renderStored()}
+        ${this.#renderProperty(data)}
+        <uui-tab-group>
+          ${repeat(
+            this.#tabs,
+            (tab) => tab,
+            (tab) =>
+              html`<uui-tab
+                label=${TAB_LABELS[tab]}
+                ?active=${this._tab === tab}
+                @click=${() => this.#selectTab(tab)}
+              ></uui-tab>`,
+          )}
+        </uui-tab-group>
+        <div class="panel" role="tabpanel" aria-label=${TAB_LABELS[this._tab]}>${this.#renderPanel()}</div>
         <div slot="actions">
           <uui-button label="Close" look="secondary" @click=${() => this._rejectModal()}></uui-button>
         </div>
@@ -81,6 +126,26 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
         </dl>
       </uui-box>
     `;
+  }
+
+  #renderPanel() {
+    switch (this._tab) {
+      case "editor":
+        return html`
+          <uui-box headline="Editor value">
+            <p slot="header-actions" class="secondary">Unsaved changes included</p>
+            <pjv-value-view
+              label="Editor value"
+              empty-message="The editor holds no value"
+              .display=${this._editor}
+            ></pjv-value-view>
+          </uui-box>
+        `;
+      case "stored":
+        return this.#renderStored();
+      case "diff":
+        return this.#renderDiff();
+    }
   }
 
   #renderStored() {
@@ -115,10 +180,45 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
     }
   }
 
+  #renderDiff() {
+    const stored = this._stored;
+    if (stored.status !== "loaded") return this.#renderStored();
+
+    const comparison = compareValues(displayStoredValue(stored.value.draft), this._editor);
+    if (comparison.same) {
+      return html`<uui-box headline="Stored draft and editor value">
+        <p>The editor value and the stored draft are the same.</p>
+      </uui-box>`;
+    }
+
+    return html`
+      <uui-box headline="Stored draft and editor value">
+        <p slot="header-actions" class="secondary">Left: stored draft. Right: editor value.</p>
+        <pjv-value-diff
+          .original=${comparison.original}
+          .modified=${comparison.modified}
+          language=${comparison.language}
+        ></pjv-value-diff>
+      </uui-box>
+    `;
+  }
+
   static override styles = [
     css`
-      uui-box + uui-box {
+      uui-box + uui-box,
+      .panel uui-box + uui-box {
         margin-top: var(--uui-size-space-5);
+      }
+
+      uui-tab-group {
+        /* The tab group fills its container's height by default, which in the drawer body is the whole panel. */
+        height: auto;
+        margin-top: var(--uui-size-space-5);
+        --uui-tab-divider: var(--uui-color-border);
+      }
+
+      .panel {
+        margin-top: var(--uui-size-space-4);
       }
 
       dl {

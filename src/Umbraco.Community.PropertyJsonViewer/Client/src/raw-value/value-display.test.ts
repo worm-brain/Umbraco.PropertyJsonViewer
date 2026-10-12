@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { displayEditorValue, displayStoredValue } from "./value-display.js";
+import { compareValues, displayEditorValue, displayStoredValue } from "./value-display.js";
 
 describe("displayStoredValue", () => {
   it("pretty-prints a stored JSON object", () => {
@@ -51,5 +51,45 @@ describe("displayEditorValue", () => {
 
   it("says the editor holds nothing for undefined", () => {
     expect(displayEditorValue(undefined)).toEqual({ kind: "empty" });
+  });
+});
+
+describe("compareValues", () => {
+  it("treats JSON that differs only in formatting as the same", () => {
+    const stored = displayStoredValue('{"a":1,"b":[2]}');
+    const editor = displayEditorValue({ a: 1, b: [2] });
+
+    expect(compareValues(stored, editor)).toEqual({ same: true });
+  });
+
+  it("diffs two different JSON values as JSON", () => {
+    const stored = displayStoredValue('{"a":1}');
+    const editor = displayEditorValue({ a: 2 });
+
+    expect(compareValues(stored, editor)).toEqual({
+      same: false,
+      original: '{\n  "a": 1\n}',
+      modified: '{\n  "a": 2\n}',
+      language: "json",
+    });
+  });
+
+  it("diffs as plain text when only one side is JSON", () => {
+    const stored = displayStoredValue("legacy text");
+    const editor = displayEditorValue({ a: 1 });
+
+    expect(compareValues(stored, editor)).toMatchObject({ same: false, language: "plaintext" });
+  });
+
+  it("shows a value the editor cleared as a difference", () => {
+    const stored = displayStoredValue("Hello");
+    const editor = displayEditorValue(undefined);
+
+    expect(compareValues(stored, editor)).toEqual({
+      same: false,
+      original: "Hello",
+      modified: "",
+      language: "plaintext",
+    });
   });
 });
