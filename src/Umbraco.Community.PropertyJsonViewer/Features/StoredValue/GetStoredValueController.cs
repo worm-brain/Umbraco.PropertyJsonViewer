@@ -72,14 +72,13 @@ public sealed class GetStoredValueController(
                     result.StorageType!
                 )
             ),
-            StoredValueStatus.DocumentNotFound => NotFound(
-                new ProblemDetails { Title = "The document could not be found" }
+            StoredValueStatus.DocumentNotFound => PackageProblem(
+                StatusCodes.Status404NotFound,
+                "The document could not be found"
             ),
-            _ => NotFound(
-                new ProblemDetails
-                {
-                    Title = $"The document has no property with the alias '{propertyAlias}'",
-                }
+            _ => PackageProblem(
+                StatusCodes.Status404NotFound,
+                $"The document has no property with the alias '{propertyAlias}'"
             ),
         };
     }

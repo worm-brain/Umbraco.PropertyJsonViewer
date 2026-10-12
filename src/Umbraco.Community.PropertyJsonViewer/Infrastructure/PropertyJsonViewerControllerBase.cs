@@ -14,7 +14,28 @@ namespace Umbraco.Community.PropertyJsonViewer.Infrastructure;
 [VersionedApiBackOfficeRoute(PropertyJsonViewerApi.RouteSegment)]
 [ApiExplorerSettings(GroupName = PropertyJsonViewerApi.GroupName)]
 [TypeFilter<PropertyJsonViewerEnabledFilter>]
-public abstract class PropertyJsonViewerControllerBase : ManagementApiControllerBase { }
+public abstract class PropertyJsonViewerControllerBase : ManagementApiControllerBase
+{
+    /// <summary>
+    /// An error response the backoffice client shows as-is. Its API interceptor only treats a body as ProblemDetails
+    /// when it has a <c>type</c>; without one, the title is replaced by a generic "fatal server error" message.
+    /// </summary>
+    /// <param name="statusCode">The HTTP status.</param>
+    /// <param name="title">A sentence the drawer shows to the user.</param>
+    /// <returns>The response.</returns>
+    protected static ObjectResult PackageProblem(int statusCode, string title) =>
+        new(
+            new ProblemDetails
+            {
+                Type = "Error",
+                Title = title,
+                Status = statusCode,
+            }
+        )
+        {
+            StatusCode = statusCode,
+        };
+}
 
 /// <summary>Short-circuits requests with 404 when the package is disabled.</summary>
 /// <remarks>Reads the options per request, so a configuration reload takes effect without a restart.</remarks>

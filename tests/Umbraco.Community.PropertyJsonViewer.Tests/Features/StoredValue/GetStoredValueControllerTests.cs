@@ -49,7 +49,7 @@ public sealed class GetStoredValueControllerTests
     }
 
     [Fact]
-    public async Task GetStoredValue_UnknownDocument_Returns404()
+    public async Task GetStoredValue_UnknownDocument_Returns404WithAProblemTheBackofficeCanShow()
     {
         GetStoredValueController controller = CreateController(
             new TestDocument().ContentService(),
@@ -58,7 +58,12 @@ public sealed class GetStoredValueControllerTests
 
         IActionResult result = await controller.GetStoredValue(Guid.NewGuid(), "heading");
 
-        Assert.Equal(StatusCodes.Status404NotFound, StatusCode(result));
+        // The backoffice only shows a ProblemDetails title when the body also has a type.
+        var problem = Assert.IsType<ProblemDetails>(Assert.IsType<ObjectResult>(result).Value);
+        Assert.Equal(
+            ((int?)StatusCodes.Status404NotFound, "Error", "The document could not be found"),
+            (problem.Status, problem.Type, problem.Title)
+        );
     }
 
     [Fact]
