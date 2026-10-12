@@ -30,6 +30,18 @@ export function prepareRawValue(text: string): string | null {
 }
 
 /**
+ * Whether the user has typed the property alias to confirm a raw save. Exact and case-sensitive, because aliases
+ * are; surrounding spaces from a paste are ignored.
+ *
+ * @param typed - What the user typed.
+ * @param propertyAlias - The alias of the property being written.
+ * @returns True when the save may go ahead.
+ */
+export function confirmationMatches(typed: string, propertyAlias: string): boolean {
+  return propertyAlias !== "" && typed.trim() === propertyAlias;
+}
+
+/**
  * Writes a raw value to the document property's draft through the package's Management API endpoint.
  *
  * @param host - The element or controller making the request.

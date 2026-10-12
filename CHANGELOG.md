@@ -24,6 +24,9 @@ All notable changes to this package are recorded here. Versions follow one line 
   to the property can edit the stored draft in the drawer and save it straight to the database, bypassing the
   property editor. It saves the draft only, as a new version, and is refused while the document has unsaved
   changes.
+- Safety rails on raw saves: a warning that the value bypasses the property editor, a review step showing the
+  difference from the stored draft, confirmation by typing the property alias, and a note after saving that the
+  draft is not published and the previous version can be rolled back.
 
 ### Fixed
 

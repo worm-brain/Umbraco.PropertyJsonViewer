@@ -89,7 +89,9 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
 
   async #onSaved() {
     this._editing = false;
-    this._savedMessage = "Raw value saved to the draft.";
+    this._savedMessage =
+      "Raw value saved to the draft. It is not published: publish the document to make it live. " +
+      "The previous value is kept as a version and can be rolled back from Info > Rollback.";
     await this.#loadStored();
   }
 
