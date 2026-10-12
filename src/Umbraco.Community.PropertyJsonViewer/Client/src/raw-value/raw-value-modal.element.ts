@@ -1,11 +1,14 @@
 import { css, customElement, html, nothing, repeat, state } from "@umbraco-cms/backoffice/external/lit";
+import { createExtensionApiByAlias } from "@umbraco-cms/backoffice/extension-registry";
 import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import { UMB_PROPERTY_CONTEXT } from "@umbraco-cms/backoffice/property";
 import { UmbApiError } from "@umbraco-cms/backoffice/resources";
+import { DOCUMENT_USER_PERMISSION_CONDITION_ALIAS, UPDATE_PERMISSION, WRITE_PERMISSION } from "./constants.js";
 import type { RawValueModalData } from "./raw-value-modal.token.js";
 import { availableTabs, initialTab, type RawValueTab } from "./raw-value-tabs.js";
-import { fetchStoredValue, type StoredValueResponse } from "./stored-value.api.js";
+import { fetchStoredValue, type StoredValueRequest, type StoredValueResponse } from "./stored-value.api.js";
 import { compareValues, displayEditorValue, displayStoredValue, type ValueDisplay } from "./value-display.js";
+import "./raw-value-edit-panel.element.js";
 import "./value-diff.element.js";
 import "./value-view.element.js";
 
@@ -34,6 +37,20 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
   @state()
   private _tab: RawValueTab = "stored";
 
+  // Whether the user may write raw values here: the package's write permission and Update on the document,
+  // and the property is not read-only (which is how core applies the property value write permission).
+  @state()
+  private _hasWritePermission = false;
+
+  @state()
+  private _propertyReadOnly = true;
+
+  @state()
+  private _editing = false;
+
+  @state()
+  private _savedMessage?: string;
+
   #tabs: Array<RawValueTab> = [];
 
   constructor() {
@@ -42,7 +59,38 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
     // menu was used. Observing keeps the Editor tab live while the editor changes behind the drawer.
     this.consumeContext(UMB_PROPERTY_CONTEXT, (property) => {
       this.observe(property?.value, (value) => (this._editor = displayEditorValue(value)), "observeEditorValue");
+      this.observe(property?.isReadOnly, (readOnly) => (this._propertyReadOnly = readOnly ?? true), "observeReadOnly");
     });
+
+    // The same condition the action uses, evaluated here for the write verbs; it reads the document through the
+    // entity context the modal forwards from the property.
+    void createExtensionApiByAlias(this, DOCUMENT_USER_PERMISSION_CONDITION_ALIAS, [
+      {
+        config: { allOf: [WRITE_PERMISSION, UPDATE_PERMISSION] },
+        onChange: (permitted: boolean) => (this._hasWritePermission = permitted),
+      },
+    ]);
+  }
+
+  get #request(): StoredValueRequest | undefined {
+    const data = this.data;
+    if (!data?.unique) return undefined;
+    return {
+      documentId: data.unique,
+      propertyAlias: data.propertyAlias,
+      culture: data.culture,
+      segment: data.segment,
+    };
+  }
+
+  get #canEdit(): boolean {
+    return this._hasWritePermission && !this._propertyReadOnly && this.#request !== undefined;
+  }
+
+  async #onSaved() {
+    this._editing = false;
+    this._savedMessage = "Raw value saved to the draft.";
+    await this.#loadStored();
   }
 
   override connectedCallback(): void {
@@ -61,12 +109,7 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
     }
 
     this._stored = { status: "loading" };
-    const { data: response, error } = await fetchStoredValue(this, {
-      documentId: data.unique,
-      propertyAlias: data.propertyAlias,
-      culture: data.culture,
-      segment: data.segment,
-    });
+    const { data: response, error } = await fetchStoredValue(this, this.#request!);
 
     this._stored =
       error || !response
@@ -172,12 +215,41 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
         </uui-box>`;
       case "loaded":
         return html`
-          <uui-box headline="Stored draft">
-            <uui-tag slot="header-actions" look="secondary">${stored.value.storageType}</uui-tag>
-            <pjv-value-view
-              label="Stored draft value"
-              .display=${displayStoredValue(stored.value.draft)}
-            ></pjv-value-view>
+          ${
+            this._savedMessage
+              ? html`<uui-box class="saved"><p role="status">${this._savedMessage}</p></uui-box>`
+              : nothing
+          }
+          <uui-box headline=${this._editing ? "Edit stored draft" : "Stored draft"}>
+            <div slot="header-actions" class="header-actions">
+              <uui-tag look="secondary">${stored.value.storageType}</uui-tag>
+              ${
+                this.#canEdit && !this._editing
+                  ? html`<uui-button
+                      label="Edit raw value"
+                      look="outline"
+                      compact
+                      @click=${() => {
+                        this._savedMessage = undefined;
+                        this._editing = true;
+                      }}
+                    ></uui-button>`
+                  : nothing
+              }
+            </div>
+            ${
+              this._editing
+                ? html`<pjv-raw-value-edit-panel
+                    .storedDraft=${displayStoredValue(stored.value.draft)}
+                    .request=${this.#request}
+                    @saved=${this.#onSaved}
+                    @cancel=${() => (this._editing = false)}
+                  ></pjv-raw-value-edit-panel>`
+                : html`<pjv-value-view
+                    label="Stored draft value"
+                    .display=${displayStoredValue(stored.value.draft)}
+                  ></pjv-value-view>`
+            }
           </uui-box>
           <uui-box headline="Stored published">
             ${
@@ -251,6 +323,17 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
 
       p {
         margin: 0;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--uui-size-space-3);
+      }
+
+      .saved {
+        --uui-box-default-padding: var(--uui-size-space-4);
+        border-left: 4px solid var(--uui-color-positive);
       }
 
       .secondary {

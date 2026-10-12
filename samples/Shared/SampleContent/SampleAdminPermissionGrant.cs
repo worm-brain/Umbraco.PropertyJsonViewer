@@ -10,8 +10,8 @@ using Umbraco.Community.PropertyJsonViewer.Infrastructure;
 namespace PropertyJsonViewer.Samples.SampleContent;
 
 /// <summary>
-/// Sample sites only: gives the Administrators group the package's read permission on every start, so the
-/// drawer works straight after a fresh install. The package itself grants it to nobody; on a real site an
+/// Sample sites only: gives the Administrators group the package's read and write permissions on every start,
+/// so the drawer works straight after a fresh install. The package itself grants it to nobody; on a real site an
 /// administrator assigns it under Users > User Groups.
 /// </summary>
 public sealed class SampleAdminPermissionGrant(
@@ -33,10 +33,15 @@ public sealed class SampleAdminPermissionGrant(
         IUserGroup? administrators = await userGroupService.GetAsync(
             Constants.Security.AdminGroupKey
         );
-        if (
-            administrators is null
-            || !administrators.Permissions.Add(PropertyJsonViewerPermissions.Read)
-        )
+        if (administrators is null)
+        {
+            return;
+        }
+
+        // Add returns false for a permission the group already has; only save when something was added.
+        bool addedRead = administrators.Permissions.Add(PropertyJsonViewerPermissions.Read);
+        bool addedWrite = administrators.Permissions.Add(PropertyJsonViewerPermissions.Write);
+        if (!addedRead && !addedWrite)
         {
             return;
         }

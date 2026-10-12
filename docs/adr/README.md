@@ -10,3 +10,4 @@ superseded.
 | [0002](0002-register-the-property-action-for-every-editor.md) | Register the property action at runtime for every property editor UI |
 | [0003](0003-tell-document-properties-from-block-properties.md) | Tell document properties from block properties by the property dataset's entity type |
 | [0004](0004-read-permission-and-kill-switch.md) | A custom document permission guards reads; a config switch turns the package off |
+| [0005](0005-raw-save.md) | Raw saves go through IContentService, with the checks the property editor would have made |

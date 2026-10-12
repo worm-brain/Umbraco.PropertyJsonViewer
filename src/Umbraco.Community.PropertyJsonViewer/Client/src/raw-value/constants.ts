@@ -10,6 +10,19 @@ export const RAW_VALUE_MODAL_ALIAS = "Umbraco.Community.PropertyJsonViewer.Modal
  */
 export const READ_PERMISSION = "PropertyJsonViewer.Read";
 
+/**
+ * The document permission that allows writing a raw value straight to the draft. Must match
+ * `PropertyJsonViewerPermissions.Write` on the server, which enforces it together with Update and the property
+ * value write permission.
+ */
+export const WRITE_PERMISSION = "PropertyJsonViewer.Write";
+
+/** Umbraco's own "Update" document permission, which a raw save also needs. */
+export const UPDATE_PERMISSION = "Umb.Document.Update";
+
+/** Alias of the "Write raw property values" document permission. */
+export const WRITE_PERMISSION_ALIAS = "Umbraco.Community.PropertyJsonViewer.EntityUserPermission.Document.Write";
+
 /** Alias of the "View raw property values" document permission. */
 export const READ_PERMISSION_ALIAS = "Umbraco.Community.PropertyJsonViewer.EntityUserPermission.Document.Read";
 

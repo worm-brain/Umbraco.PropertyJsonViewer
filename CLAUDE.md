@@ -10,7 +10,7 @@ The build brief and the session handoff live in the maintainer's private plannin
 - Built-in extension points only. The UI hooks into property actions and modals; never patch or wrap `umb-property` or other core elements.
 - Verify Umbraco and SDK APIs against the installed version before use; never invent aliases, routes, element names or members. When docs and the installed package disagree, the package wins.
 - Decisions and Verify outcomes that change the brief go in `docs/adr/` (see its README).
-- Stored values are read, and (later) written, only through Umbraco's services (`IContentService`). Never SQL.
+- Stored values are read and written only through Umbraco's services (`IContentService`). Never SQL (ADR 0005).
 - Organise by feature folder, not technical layer.
 - Tooling: Bun + Vitest + Prettier for the client; xUnit v3 + NSubstitute + CSharpier for .NET.
 - One package per Umbraco major (ADR 0001): `dotnet build` targets 17, `-p:UmbracoMajor=18` targets 18. Major-specific code goes in paired `*.V17.cs` / `*.V18.cs` files. Build and test both majors before committing anything that touches Umbraco APIs.
@@ -27,4 +27,4 @@ dotnet run --project samples/PropertyJsonViewer.Site18 -p:UmbracoMajor=18   # ht
 # login on both: admin@example.com / 1234567890
 ```
 
-The sample sites seed a "Raw value test page" (key `5a1d9c61-8f0e-4d3c-9b8a-2f7f0d0c1a01`) with a text box, a block list and a property using a stand-in third-party editor (`wwwroot/App_Plugins/SampleThirdParty`), and grant Administrators the "View raw property values" permission on start-up (ADR 0004). Run with `PropertyJsonViewer__Enabled=false` to check the kill switch. Restart a running site after a client build: the static asset list is read at startup.
+The sample sites seed a "Raw value test page" (key `5a1d9c61-8f0e-4d3c-9b8a-2f7f0d0c1a01`) with a text box, a block list and a property using a stand-in third-party editor (`wwwroot/App_Plugins/SampleThirdParty`), and grant Administrators the package's read and write permissions on start-up (ADR 0004). Run with `PropertyJsonViewer__Enabled=false` to check the kill switch. Restart a running site after a client build: the static asset list is read at startup.

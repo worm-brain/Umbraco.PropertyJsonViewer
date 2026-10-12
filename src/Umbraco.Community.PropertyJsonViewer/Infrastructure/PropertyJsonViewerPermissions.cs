@@ -9,4 +9,10 @@ public static class PropertyJsonViewerPermissions
 {
     /// <summary>May open the drawer and read a document's stored property values.</summary>
     public const string Read = "PropertyJsonViewer.Read";
+
+    /// <summary>
+    /// May write a raw value straight to a document property's draft, bypassing the property editor. Also needs
+    /// Umbraco's Update permission and the property value write permission.
+    /// </summary>
+    public const string Write = "PropertyJsonViewer.Write";
 }

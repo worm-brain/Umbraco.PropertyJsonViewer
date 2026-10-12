@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Community.PropertyJsonViewer.Features.RawSave;
 using Umbraco.Community.PropertyJsonViewer.Features.StoredValue;
 
 namespace Umbraco.Community.PropertyJsonViewer.Infrastructure;
@@ -16,5 +17,6 @@ public sealed class PropertyJsonViewerComposer : IComposer
             builder.Config.GetSection(PropertyJsonViewerOptions.SectionName)
         );
         builder.Services.AddScoped<StoredValueReader>();
+        builder.Services.AddScoped<RawValueWriter>();
     }
 }

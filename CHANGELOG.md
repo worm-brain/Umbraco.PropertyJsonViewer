@@ -20,3 +20,12 @@ All notable changes to this package are recorded here. Versions follow one line 
   last chosen.
 - For a property inside a block, the drawer shows only the Editor tab and explains that the stored value is
   inside the parent block property's value.
+- Raw save: users with the new "Write raw property values" permission, Update on the document and write access
+  to the property can edit the stored draft in the drawer and save it straight to the database, bypassing the
+  property editor. It saves the draft only, as a new version, and is refused while the document has unsaved
+  changes.
+
+### Fixed
+
+- Error messages from the package's API (for example "The document could not be found") are shown in the
+  drawer instead of a generic server error.
