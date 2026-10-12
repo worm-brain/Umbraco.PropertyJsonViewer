@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Umbraco PropertyJsonViewer">
+  <title>Umbraco PropertyJsonViewer</title>
+  <rect width="128" height="128" rx="28" fill="#C93A78"/>
+  <g fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M46 38C40 38 38 41 38 46V54C38 59 36 62 34 64C36 66 38 69 38 74V82C38 87 40 90 46 90"/>
+    <path d="M82 38C88 38 90 41 90 46V54C90 59 92 62 94 64C92 66 90 69 90 74V82C90 87 88 90 82 90"/>
+    <path d="M64 46V58M58 52H70M58 76H70"/>
+  </g>
+</svg>

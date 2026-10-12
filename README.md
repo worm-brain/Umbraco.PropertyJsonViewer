@@ -1,3 +1,5 @@
+<img src="assets/icon/umbraco-propertyjsonviewer.svg" alt="" width="96" height="96">
+
 # Umbraco Property JSON Viewer
 
 See and fix the raw value Umbraco stores for any document property, right from the backoffice. It adds **View raw
