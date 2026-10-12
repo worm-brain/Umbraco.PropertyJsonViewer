@@ -18,3 +18,5 @@ All notable changes to this package are recorded here. Versions follow one line 
 - Editor, Stored and Diff tabs in the drawer. Editor shows the value the property editor holds now, unsaved
   edits included; Diff compares it with the stored draft in Monaco's diff view. The drawer reopens on the tab
   last chosen.
+- For a property inside a block, the drawer shows only the Editor tab and explains that the stored value is
+  inside the parent block property's value.

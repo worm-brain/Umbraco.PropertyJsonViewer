@@ -3,7 +3,7 @@ import { UmbModalBaseElement } from "@umbraco-cms/backoffice/modal";
 import { UMB_PROPERTY_CONTEXT } from "@umbraco-cms/backoffice/property";
 import { UmbApiError } from "@umbraco-cms/backoffice/resources";
 import type { RawValueModalData } from "./raw-value-modal.token.js";
-import { initialTab, type RawValueTab } from "./raw-value-tabs.js";
+import { availableTabs, initialTab, type RawValueTab } from "./raw-value-tabs.js";
 import { fetchStoredValue, type StoredValueResponse } from "./stored-value.api.js";
 import { compareValues, displayEditorValue, displayStoredValue, type ValueDisplay } from "./value-display.js";
 import "./value-diff.element.js";
@@ -34,7 +34,7 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
   @state()
   private _tab: RawValueTab = "stored";
 
-  #tabs: Array<RawValueTab> = ["editor", "stored", "diff"];
+  #tabs: Array<RawValueTab> = [];
 
   constructor() {
     super();
@@ -47,14 +47,16 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
 
   override connectedCallback(): void {
     super.connectedCallback();
+    this.#tabs = availableTabs(this.data?.entityType ?? "");
     this._tab = initialTab(this.#tabs, rememberedTab);
-    void this.#loadStored();
+    // Only a document property has a stored value of its own to ask for (ADR 0003).
+    if (this.#tabs.includes("stored")) void this.#loadStored();
   }
 
   async #loadStored() {
     const data = this.data;
-    if (!data?.unique || data.entityType !== "document") {
-      this._stored = { status: "error", message: "Stored values can only be read for document properties." };
+    if (!data?.unique) {
+      this._stored = { status: "error", message: "This document has not been saved yet, so nothing is stored." };
       return;
     }
 
@@ -132,6 +134,7 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
     switch (this._tab) {
       case "editor":
         return html`
+          ${this.#renderNoStoredValueNote()}
           <uui-box headline="Editor value">
             <p slot="header-actions" class="secondary">Unsaved changes included</p>
             <pjv-value-view
@@ -146,6 +149,16 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
       case "diff":
         return this.#renderDiff();
     }
+  }
+
+  #renderNoStoredValueNote() {
+    if (this.#tabs.includes("stored")) return nothing;
+    const message =
+      this.data?.entityType === "element"
+        ? html`This property is inside a block, so it has no stored value of its own: it is stored inside the parent
+            block property's value. Use <strong>View raw value</strong> on that property to see it.`
+        : html`Stored values can only be read for document properties.`;
+    return html`<uui-box class="note" headline="No stored value"><p>${message}</p></uui-box>`;
   }
 
   #renderStored() {
@@ -205,8 +218,7 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
 
   static override styles = [
     css`
-      uui-box + uui-box,
-      .panel uui-box + uui-box {
+      uui-box + uui-box {
         margin-top: var(--uui-size-space-5);
       }
 
