@@ -6,4 +6,7 @@
   <Folder Name="/src/">
     <Project Path="src/Umbraco.Community.PropertyJsonViewer/Umbraco.Community.PropertyJsonViewer.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Umbraco.Community.PropertyJsonViewer.Tests/Umbraco.Community.PropertyJsonViewer.Tests.csproj" />
+  </Folder>
 </Solution>

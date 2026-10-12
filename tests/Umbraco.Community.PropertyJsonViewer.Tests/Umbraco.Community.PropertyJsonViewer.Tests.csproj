@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Tests for the package project's server code. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Umbraco.Community.PropertyJsonViewer.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Pin the Umbraco version we develop against for this major (the package itself floats from the floor). -->
+    <PackageReference Include="Umbraco.Cms.Web.Website" VersionOverride="$(UmbracoDevVersion)" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" VersionOverride="$(UmbracoDevVersion)" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="NSubstitute" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Umbraco.Community.PropertyJsonViewer\Umbraco.Community.PropertyJsonViewer.csproj" />
+  </ItemGroup>
+</Project>
