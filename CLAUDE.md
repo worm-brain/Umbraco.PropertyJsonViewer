@@ -27,4 +27,4 @@ dotnet run --project samples/PropertyJsonViewer.Site18 -p:UmbracoMajor=18   # ht
 # login on both: admin@example.com / 1234567890
 ```
 
-The sample sites seed a "Raw value test page" (key `5a1d9c61-8f0e-4d3c-9b8a-2f7f0d0c1a01`) with a text box, a block list and a property using a stand-in third-party editor (`wwwroot/App_Plugins/SampleThirdParty`). Restart a running site after a client build: the static asset list is read at startup.
+The sample sites seed a "Raw value test page" (key `5a1d9c61-8f0e-4d3c-9b8a-2f7f0d0c1a01`) with a text box, a block list and a property using a stand-in third-party editor (`wwwroot/App_Plugins/SampleThirdParty`), and grant Administrators the "View raw property values" permission on start-up (ADR 0004). Run with `PropertyJsonViewer__Enabled=false` to check the kill switch. Restart a running site after a client build: the static asset list is read at startup.

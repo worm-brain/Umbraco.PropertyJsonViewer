@@ -1,4 +1,5 @@
 import { manifests as entrypoints } from "./entrypoints/manifests.js";
+import { manifests as lang } from "./lang/manifests.js";
 import { manifests as rawValue } from "./raw-value/manifests.js";
 
 /**
@@ -6,4 +7,4 @@ import { manifests as rawValue } from "./raw-value/manifests.js";
  * feature folder contributes its own `manifests` array. The property action itself is not here: the
  * entry point registers it at runtime (ADR 0002).
  */
-export const manifests: Array<UmbExtensionManifest> = [...entrypoints, ...rawValue];
+export const manifests: Array<UmbExtensionManifest> = [...entrypoints, ...lang, ...rawValue];

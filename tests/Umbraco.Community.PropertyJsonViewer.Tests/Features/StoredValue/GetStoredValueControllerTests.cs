@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Security.Authorization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Community.PropertyJsonViewer.Features.StoredValue;
+using Umbraco.Community.PropertyJsonViewer.Infrastructure;
 using Umbraco.Community.PropertyJsonViewer.Tests.Support;
 
 namespace Umbraco.Community.PropertyJsonViewer.Tests.Features.StoredValue;
@@ -13,13 +15,13 @@ namespace Umbraco.Community.PropertyJsonViewer.Tests.Features.StoredValue;
 public sealed class GetStoredValueControllerTests
 {
     [Fact]
-    public async Task GetStoredValue_UserMayReadTheDocument_ReturnsTheStoredValues()
+    public async Task GetStoredValue_UserWithTheReadPermission_ReturnsTheStoredValues()
     {
         var document = new TestDocument();
         document.AddProperty("heading").SetValue("Hello");
         GetStoredValueController controller = CreateController(
             document.ContentService(),
-            allowed: true
+            grantedPermission: PropertyJsonViewerPermissions.Read
         );
 
         IActionResult result = await controller.GetStoredValue(document.Key, "heading");
@@ -32,12 +34,14 @@ public sealed class GetStoredValueControllerTests
     }
 
     [Fact]
-    public async Task GetStoredValue_UserMayNotReadTheDocument_Returns403WithoutReading()
+    public async Task GetStoredValue_UserWhoCanOnlyBrowseTheDocument_Returns403()
     {
         var document = new TestDocument();
         document.AddProperty("heading").SetValue("Secret");
-        IContentService contentService = document.ContentService();
-        GetStoredValueController controller = CreateController(contentService, allowed: false);
+        GetStoredValueController controller = CreateController(
+            document.ContentService(),
+            grantedPermission: "Umb.Document.Read"
+        );
 
         IActionResult result = await controller.GetStoredValue(document.Key, "heading");
 
@@ -49,7 +53,7 @@ public sealed class GetStoredValueControllerTests
     {
         GetStoredValueController controller = CreateController(
             new TestDocument().ContentService(),
-            allowed: true
+            grantedPermission: PropertyJsonViewerPermissions.Read
         );
 
         IActionResult result = await controller.GetStoredValue(Guid.NewGuid(), "heading");
@@ -64,7 +68,7 @@ public sealed class GetStoredValueControllerTests
         document.AddProperty("heading", ValueStorageType.Nvarchar);
         GetStoredValueController controller = CreateController(
             document.ContentService(),
-            allowed: true
+            grantedPermission: PropertyJsonViewerPermissions.Read
         );
 
         IActionResult result = await controller.GetStoredValue(document.Key, "missing");
@@ -74,13 +78,20 @@ public sealed class GetStoredValueControllerTests
 
     private static GetStoredValueController CreateController(
         IContentService contentService,
-        bool allowed
+        string grantedPermission
     )
     {
+        // Stands in for Umbraco's content permission handler: the user holds exactly one permission on the
+        // document, and a check succeeds only when it asks for nothing else.
         IAuthorizationService authorization = Substitute.For<IAuthorizationService>();
         authorization
             .AuthorizeAsync(Arg.Any<ClaimsPrincipal>(), Arg.Any<object?>(), Arg.Any<string>())
-            .Returns(allowed ? AuthorizationResult.Success() : AuthorizationResult.Failed());
+            .Returns(call =>
+                call.ArgAt<object?>(1) is ContentPermissionResource resource
+                && resource.PermissionsToCheck.All(permission => permission == grantedPermission)
+                    ? AuthorizationResult.Success()
+                    : AuthorizationResult.Failed()
+            );
 
         return new GetStoredValueController(authorization, new StoredValueReader(contentService))
         {

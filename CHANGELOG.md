@@ -11,3 +11,7 @@ All notable changes to this package are recorded here. Versions follow one line 
 - A Stored section in the drawer showing the document property's stored draft and published values exactly
   as the database holds them, before any property editor conversion. JSON is pretty-printed; other values
   show as plain text.
+- A "View raw property values" document permission (default and granular). The action and the API are only
+  available to users who have it on the document; nobody has it until an administrator assigns it.
+- `PropertyJsonViewer:Enabled` in appsettings (default `true`). When false, the package's endpoints return 404
+  and the action is not shown.

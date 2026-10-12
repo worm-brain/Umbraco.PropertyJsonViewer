@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { UmbExtensionRegistry, type ManifestBase } from "@umbraco-cms/backoffice/extension-api";
 import { firstValueFrom } from "@umbraco-cms/backoffice/external/rxjs";
 import type { ManifestPropertyAction } from "@umbraco-cms/backoffice/property-action";
-import { VIEW_RAW_VALUE_ACTION_ALIAS } from "./constants.js";
+import { READ_PERMISSION, VIEW_RAW_VALUE_ACTION_ALIAS } from "./constants.js";
 import { syncViewRawValueAction } from "./view-raw-value-registration.js";
 
 function editorUi(alias: string): ManifestBase {
@@ -49,5 +49,15 @@ describe("syncViewRawValueAction", () => {
 
     const [action] = await registeredAction(registry);
     expect(action?.forPropertyEditorUis).toEqual(["Umb.PropertyEditorUi.TextBox"]);
+  });
+
+  it("shows the action only to users with the read permission on the document", async () => {
+    const registry = new UmbExtensionRegistry<ManifestBase>();
+    registry.register(editorUi("Umb.PropertyEditorUi.TextBox"));
+
+    syncViewRawValueAction(registry);
+
+    const [action] = await registeredAction(registry);
+    expect(action?.conditions).toEqual([{ alias: "Umb.Condition.UserPermission.Document", allOf: [READ_PERMISSION] }]);
   });
 });

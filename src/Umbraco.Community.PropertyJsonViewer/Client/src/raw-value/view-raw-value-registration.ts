@@ -1,6 +1,6 @@
 import type { ManifestBase, UmbExtensionRegistry } from "@umbraco-cms/backoffice/extension-api";
 import type { ManifestPropertyActionDefaultKind } from "@umbraco-cms/backoffice/property-action";
-import { VIEW_RAW_VALUE_ACTION_ALIAS } from "./constants.js";
+import { DOCUMENT_USER_PERMISSION_CONDITION_ALIAS, READ_PERMISSION, VIEW_RAW_VALUE_ACTION_ALIAS } from "./constants.js";
 
 /** The registry members the sync uses, so tests can pass a small fake. */
 export type ViewRawValueRegistry = Pick<
@@ -23,6 +23,7 @@ export function createViewRawValueManifest(propertyEditorUiAliases: Array<string
     // Low weight puts it after the core actions (Clear, Copy, Paste) in the menu.
     weight: -100,
     forPropertyEditorUis: propertyEditorUiAliases,
+    conditions: [{ alias: DOCUMENT_USER_PERMISSION_CONDITION_ALIAS, allOf: [READ_PERMISSION] }],
     api: () => import("./view-raw-value.property-action.js"),
     meta: {
       icon: "icon-brackets",

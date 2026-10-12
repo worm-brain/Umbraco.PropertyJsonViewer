@@ -2,9 +2,6 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Umbraco.Cms.Api.Management.Controllers;
-using Umbraco.Cms.Api.Management.Routing;
-using Umbraco.Cms.Core.Actions;
 using Umbraco.Cms.Core.Security.Authorization;
 using Umbraco.Cms.Web.Common.Authorization;
 using Umbraco.Community.PropertyJsonViewer.Infrastructure;
@@ -30,19 +27,17 @@ public sealed record PropertyJsonViewerStoredValueResponseModel(
 /// </summary>
 /// <remarks>Read-only: it never modifies content.</remarks>
 [ApiVersion("1.0")]
-[VersionedApiBackOfficeRoute(PropertyJsonViewerApi.RouteSegment)]
-[ApiExplorerSettings(GroupName = PropertyJsonViewerApi.GroupName)]
 public sealed class GetStoredValueController(
     IAuthorizationService authorizationService,
     StoredValueReader reader
-) : ManagementApiControllerBase
+) : PropertyJsonViewerControllerBase
 {
     /// <summary>Gets the stored draft and published values of a document property.</summary>
     /// <param name="documentId">The document key.</param>
     /// <param name="propertyAlias">The property type alias.</param>
     /// <param name="culture">The culture being viewed; ignored for a property that does not vary by culture.</param>
     /// <param name="segment">The segment being viewed; ignored for a property that does not vary by segment.</param>
-    /// <returns>The values; 403 without read access to the document; 404 when the document or property does not exist.</returns>
+    /// <returns>The values; 403 without <see cref="PropertyJsonViewerPermissions.Read"/> on the document; 404 when the document or property does not exist.</returns>
     [HttpGet("stored-value")]
     [ProducesResponseType<PropertyJsonViewerStoredValueResponseModel>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
@@ -54,10 +49,11 @@ public sealed class GetStoredValueController(
         string? segment = null
     )
     {
-        // Same check as the core "get document" endpoint: anyone who may read the document may read its values.
+        // The package's own document permission, resolved like core ones: granular permissions on the
+        // document or its nearest ancestor win over the user groups' default permissions.
         AuthorizationResult authorization = await authorizationService.AuthorizeResourceAsync(
             User,
-            ContentPermissionResource.WithKeys(ActionBrowse.ActionLetter, documentId),
+            ContentPermissionResource.WithKeys(PropertyJsonViewerPermissions.Read, documentId),
             AuthorizationPolicies.ContentPermissionByResource
         );
         if (!authorization.Succeeded)

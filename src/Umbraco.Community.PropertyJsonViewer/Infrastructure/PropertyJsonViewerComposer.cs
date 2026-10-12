@@ -12,6 +12,9 @@ public sealed class PropertyJsonViewerComposer : IComposer
     public void Compose(IUmbracoBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
+        builder.Services.Configure<PropertyJsonViewerOptions>(
+            builder.Config.GetSection(PropertyJsonViewerOptions.SectionName)
+        );
         builder.Services.AddScoped<StoredValueReader>();
     }
 }
