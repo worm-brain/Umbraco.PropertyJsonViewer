@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/PropertyJsonViewer.Site17/PropertyJsonViewer.Site17.csproj" />
+    <Project Path="samples/PropertyJsonViewer.Site18/PropertyJsonViewer.Site18.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Umbraco.Community.PropertyJsonViewer/Umbraco.Community.PropertyJsonViewer.csproj" />
+  </Folder>
+</Solution>

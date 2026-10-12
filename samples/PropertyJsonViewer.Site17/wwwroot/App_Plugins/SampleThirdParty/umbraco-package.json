@@ -1,0 +1,19 @@
+{
+  "id": "Sample.ThirdParty",
+  "name": "Sample third-party property editor",
+  "version": "1.0.0",
+  "extensions": [
+    {
+      "type": "propertyEditorUi",
+      "alias": "Sample.PropertyEditorUi.ThirdParty",
+      "name": "Sample Third-Party Property Editor UI",
+      "element": "/App_Plugins/SampleThirdParty/third-party-editor.js",
+      "meta": {
+        "label": "Sample third-party editor",
+        "icon": "icon-plugin",
+        "group": "common",
+        "propertyEditorSchemaAlias": "Umbraco.TextBox"
+      }
+    }
+  ]
+}

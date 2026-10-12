@@ -1,0 +1,14 @@
+{
+  "id": "Umbraco.Community.PropertyJsonViewer",
+  "name": "Property JSON Viewer",
+  "version": "0.0.0",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "name": "Umbraco Community Property JSON Viewer Bundle",
+      "alias": "Umbraco.Community.PropertyJsonViewer.Bundle",
+      "type": "bundle",
+      "js": "/App_Plugins/UmbracoCommunityPropertyJsonViewer/umbraco-community-property-json-viewer.js"
+    }
+  ]
+}
