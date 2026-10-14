@@ -7,6 +7,7 @@ import {
   openPropertyActions,
   openTestPage,
   property,
+  TEST_BLOCK_ID,
   valueText,
 } from "./support/raw-value.js";
 import { expect, test } from "./support/test.js";
@@ -56,7 +57,7 @@ test.describe("the Stored tab", () => {
     await expect(panel.getByText("Ntext", { exact: true })).toBeVisible();
     const draft = JSON.parse(await valueText(drawer, "Stored draft value"));
     // Stored, not as the editor holds it: layout items carry only their content key.
-    expect(draft.layout["Umbraco.BlockList"]).toEqual([{ contentKey: "5a1d9c61-8f0e-4d3c-9b8a-2f7f0d0c1a06" }]);
+    expect(draft.layout["Umbraco.BlockList"]).toEqual([{ contentKey: TEST_BLOCK_ID }]);
     expect(draft.contentData[0].values[0]).toEqual({ alias: "title", value: "A title inside a block" });
   });
 

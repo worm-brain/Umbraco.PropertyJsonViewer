@@ -1,11 +1,14 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
 /**
- * Key of the "Raw value test page" the sample sites seed (`samples/Shared/SampleContent`). It has a text box
- * (`heading`), a block list with one text block (`blocks`, the block's `title` inside it) and a property using
- * the stand-in third-party editor (`thirdParty`).
+ * Id (the document key) of the "Raw value test page" the sample sites seed (`samples/Shared/SampleContent`). It
+ * has a text box (`heading`), a block list with one text block (`blocks`, the block's `title` inside it) and a
+ * property using the stand-in third-party editor (`thirdParty`).
  */
-export const TEST_PAGE_KEY = "5a1d9c61-8f0e-4d3c-9b8a-2f7f0d0c1a01";
+export const TEST_PAGE_ID = "5a1d9c61-8f0e-4d3c-9b8a-2f7f0d0c1a01";
+
+/** Id (the content key) of the one block in the test page's block list. */
+export const TEST_BLOCK_ID = "5a1d9c61-8f0e-4d3c-9b8a-2f7f0d0c1a06";
 
 /** The test page's property aliases. */
 export type TestPageProperty = "heading" | "blocks" | "thirdParty";
@@ -16,7 +19,7 @@ export type TestPageProperty = "heading" | "blocks" | "thirdParty";
  * @param page - A logged-in page.
  */
 export async function openTestPage(page: Page): Promise<void> {
-  await page.goto(`/umbraco/section/content/workspace/document/edit/${TEST_PAGE_KEY}`);
+  await page.goto(`/umbraco/section/content/workspace/document/edit/${TEST_PAGE_ID}`);
   await expect(page.getByRole("textbox", { name: "Field for Heading" })).toBeVisible({ timeout: 30_000 });
 }
 

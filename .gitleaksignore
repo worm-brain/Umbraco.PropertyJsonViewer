@@ -1,0 +1,20 @@
+# gitleaks suppression file: one accepted finding per line, by fingerprint.
+#
+# The Security workflow's secret scan (.github/scripts/secret-scan.ps1) fails on any secret gitleaks
+# finds in the commit history. When a finding is a false positive or an accepted test fixture, add its
+# fingerprint here, with a comment saying who accepted it, why and when, so it does not fail later runs.
+# Whole files that only ever hold development values belong in the .gitleaks.toml allowlist instead.
+#
+# A fingerprint looks like:  <commit-sha>:<file-path>:<rule-id>:<line-number>
+# gitleaks prints the exact fingerprint for each finding; copy it verbatim.
+#
+# Example:
+#   # Test fixture, not a real key. Accepted by @worm-brain 2026-10-14.
+#   0adc1e2f...:tests/Some.Tests/Fixtures/sample.json:generic-api-key:12
+
+# Not keys: the sample test page's document id and its block's content key, GUIDs that the
+# generic-api-key rule matches on the names `TEST_PAGE_KEY` and `contentKey`. Both lines were
+# renamed in a later commit; these fingerprints cover the commit that added them. Added
+# 2026-10-14 with the e2e suite, for the maintainer to accept by merging its pull request.
+b934b5837afaefcd7c09ba7c2ff4eb5a563ee825:src/Umbraco.Community.PropertyJsonViewer/Client/e2e/drawer.spec.ts:generic-api-key:59
+b934b5837afaefcd7c09ba7c2ff4eb5a563ee825:src/Umbraco.Community.PropertyJsonViewer/Client/e2e/support/raw-value.ts:generic-api-key:8
