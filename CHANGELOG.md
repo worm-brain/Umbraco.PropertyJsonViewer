@@ -30,5 +30,7 @@ All notable changes to this package are recorded here. Versions follow one line 
 
 ### Fixed
 
+- Screen readers announce the two sides of the Diff tab and of the raw save review by name ("Stored draft", "Editor
+  value", "Value to save") instead of as unnamed text boxes.
 - Error messages from the package's API (for example "The document could not be found") are shown in the
   drawer instead of a generic server error.

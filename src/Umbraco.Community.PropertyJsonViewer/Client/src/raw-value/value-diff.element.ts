@@ -28,6 +28,17 @@ export class ValueDiffElement extends UmbLitElement {
   @property()
   language = "plaintext";
 
+  /**
+   * Accessible name of the left-hand side, which screen readers announce in its text area. Read once, when the
+   * diff is first drawn.
+   */
+  @property({ attribute: "original-label" })
+  originalLabel = "Stored draft";
+
+  /** Accessible name of the right-hand side. Read once, when the diff is first drawn. */
+  @property({ attribute: "modified-label" })
+  modifiedLabel = "Editor value";
+
   @state()
   private _styles = "";
 
@@ -52,6 +63,11 @@ export class ValueDiffElement extends UmbLitElement {
       minimap: { enabled: false },
       scrollBeyondLastLine: false,
     });
+    // Each side has its own text area for keyboard and screen reader use, which has no name unless its editor is
+    // given one. Set on the two editors because the diff editor's own originalAriaLabel and modifiedAriaLabel
+    // options are declared but not applied by the bundled Monaco.
+    this.#editor.getOriginalEditor().updateOptions({ ariaLabel: this.originalLabel });
+    this.#editor.getModifiedEditor().updateOptions({ ariaLabel: this.modifiedLabel });
     this.#setModels();
   }
 

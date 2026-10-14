@@ -121,6 +121,7 @@ export class RawValueEditPanelElement extends UmbLitElement {
         .original=${comparison.original}
         .modified=${comparison.modified}
         language=${comparison.language}
+        modified-label="Value to save"
       ></pjv-value-diff>
       <div class="confirm">
         <label for="confirmation">Type <code>${alias}</code> to confirm</label>
