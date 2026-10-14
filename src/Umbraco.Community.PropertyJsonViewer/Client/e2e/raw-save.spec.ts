@@ -83,6 +83,9 @@ test("a raw save is refused while the document has unsaved changes", async ({ pa
   await drawer.getByRole("button", { name: "Back to editing" }).click();
   await drawer.getByRole("button", { name: "Cancel" }).click();
   expect(await valueText(drawer, "Stored draft value")).toBe(stored);
+  // Cancel ends the edit, not the drawer: it stays open and usable.
+  await expect(drawer.getByRole("button", { name: "Edit raw value" })).toBeVisible();
+  await chooseTab(drawer, "Diff");
 });
 
 test.describe("the server's checks", () => {

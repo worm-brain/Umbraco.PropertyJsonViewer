@@ -113,7 +113,7 @@ test.describe("the Diff tab", () => {
 });
 
 test("the drawer reopens on the tab last chosen", async ({ page }) => {
-  let drawer = await openDrawer(page, "blocks");
+  let drawer = await openDrawer(page, "thirdParty");
   await chooseTab(drawer, "Diff");
   await drawer.getByRole("button", { name: "Close" }).click();
   await expect(drawer).toHaveCount(0);

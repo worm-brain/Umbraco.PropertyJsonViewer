@@ -34,6 +34,9 @@ released together under one heading.
 
 ### Fixed
 
+- **Cancel** in a raw edit returns to the stored draft instead of closing the whole drawer.
+- Each drawer tab keeps its content when you switch away and back, instead of being rebuilt. Switching tabs
+  straight after opening the drawer no longer logs "Container not found" errors in the browser console.
 - Screen readers announce the two sides of the Diff tab and of the raw save review by name ("Stored draft", "Editor
   value", "Value to save") instead of as unnamed text boxes.
 - Error messages from the package's API (for example "The document could not be found") are shown in the
