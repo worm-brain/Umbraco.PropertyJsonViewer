@@ -22,6 +22,8 @@ The build brief and the session handoff live in the maintainer's private plannin
 dotnet build && dotnet test                                  # Umbraco 17
 dotnet build -p:UmbracoMajor=18 && dotnet test -p:UmbracoMajor=18
 cd src/Umbraco.Community.PropertyJsonViewer/Client && bun run typecheck && bun run test && bun run build
+cd src/Umbraco.Community.PropertyJsonViewer/Client && bun run e2e   # Playwright against both sample sites (CONTRIBUTING.md)
+uv run tests/package-smoke/smoke_nupkg.py --packages artifacts --major 17   # packed nupkg on fresh sites
 dotnet run --project samples/PropertyJsonViewer.Site17                      # https://localhost:44470/umbraco
 dotnet run --project samples/PropertyJsonViewer.Site18 -p:UmbracoMajor=18   # https://localhost:44480/umbraco
 # login on both: admin@example.com / 1234567890
