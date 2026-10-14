@@ -1,0 +1,81 @@
+# Builds, tests and packs everything (.NET and the Lit client) for each Umbraco major (ADR 0001)
+# on every pull request that changes code (not on pushes, to save Actions minutes).
+name: CI
+
+# Pull requests only: pushes to branches do not run this, to save Actions minutes.
+on:
+  pull_request:
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    name: Umbraco ${{ matrix.umbraco }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # umbraco: the -p:UmbracoMajor value; backoffice-floor: the lowest @umbraco-cms/backoffice of that major.
+        include:
+          - umbraco: 17
+            backoffice-floor: 17.0.0
+          - umbraco: 18
+            backoffice-floor: 18.0.0
+    env:
+      UMBRACO_MAJOR: ${{ matrix.umbraco }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Version comes from global.json so CI and local builds use the same SDK band.
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.3.3
+
+      # .NET: format, build (warnings are errors), test.
+      - run: dotnet tool restore
+      - run: dotnet csharpier check .
+      - run: dotnet build Umbraco.Community.PropertyJsonViewer.slnx -warnaserror -p:UmbracoMajor=$UMBRACO_MAJOR
+      - name: Test
+        run: dotnet test --solution Umbraco.Community.PropertyJsonViewer.slnx --no-build -p:UmbracoMajor=$UMBRACO_MAJOR --report-xunit-trx --results-directory test-results
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-results-umbraco-${{ matrix.umbraco }}
+          path: test-results/
+          if-no-files-found: ignore
+
+      # Client: format, typecheck, unit tests, then a typecheck against the oldest backoffice of this major
+      # so the client never uses an API that arrived after the package's floor (ADR 0001).
+      - name: Client checks
+        working-directory: src/Umbraco.Community.PropertyJsonViewer/Client
+        run: |
+          bun install --frozen-lockfile
+          bun run format:check
+          bun run typecheck
+          bun run test
+          bun add -d @umbraco-cms/backoffice@${{ matrix.backoffice-floor }} --no-save
+          bun run typecheck
+
+      # Packing builds the client itself; this proves a clean checkout produces a complete package.
+      - run: dotnet pack Umbraco.Community.PropertyJsonViewer.slnx -o artifacts -p:UmbracoMajor=$UMBRACO_MAJOR
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: packages-umbraco-${{ matrix.umbraco }}
+          path: artifacts/
