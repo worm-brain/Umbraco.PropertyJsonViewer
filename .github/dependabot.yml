@@ -1,0 +1,57 @@
+# Dependabot keeps the dependencies current, once a month. Minor and patch updates arrive as one grouped
+# pull request per ecosystem, so they cost one CI run each. Major updates are left out of the groups and
+# arrive one pull request each, so a breaking one fails on its own instead of holding back the group.
+# The workflows pin actions to full commit SHAs with the tag in a trailing comment; Dependabot moves the
+# SHA and the comment together.
+#
+# The ignore rules hold back only versions this repository chooses on purpose.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      github-actions:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: ci
+
+  # Every .NET project, through Directory.Packages.props (central package management).
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      nuget:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: build
+    ignore:
+      # The package's version of these is UmbracoPackageRange, the Umbraco range it supports (ADR 0001).
+      # Its floor moves only by decision; Dependabot would raise it to the newest release.
+      - dependency-name: "Umbraco.Cms.Web.Website"
+      - dependency-name: "Umbraco.Cms.Api.Management"
+      # Each package line builds against one Umbraco major (ADR 0001): the dev versions move within it.
+      - dependency-name: "Umbraco.*"
+        update-types: ["version-update:semver-major"]
+      # The sample sites name this version again in their AppLocalIcu setting, which must match it.
+      - dependency-name: "Microsoft.ICU.ICU4C.Runtime"
+
+  # The backoffice client.
+  - package-ecosystem: bun
+    directory: /src/Umbraco.Community.PropertyJsonViewer/Client
+    schedule:
+      interval: monthly
+    groups:
+      bun:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: build
+    ignore:
+      # The client builds against the backoffice of the default Umbraco major (ADR 0001).
+      - dependency-name: "@umbraco-cms/*"
+        update-types: ["version-update:semver-major"]

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "Title": "Umbraco Property JSON Viewer",
+  "Description": "See and fix the raw value Umbraco stores for any document property, right from the backoffice. It adds View raw value to the \"...\" menu of every property, next to Umbraco's own Copy and Clear, and works with any property editor, including ones from other packages. See exactly what is in the database, compare it with what the property editor holds, and, with a second permission, write a corrected value straight to the draft.",
+  "Category": "Developer Tools",
+  "AlternateCategory": "Editor Tools",
+  "PackageType": "Package",
+  "LicenseTypes": ["Free"],
+  "Tags": ["json", "debugging", "property editor", "block list", "backoffice"],
+  "DocumentationUrl": "https://github.com/worm-brain/Umbraco.PropertyJsonViewer/blob/main/docs/index.md",
+  "IssueTrackerUrl": "https://github.com/worm-brain/Umbraco.PropertyJsonViewer/issues",
+  "AuthorDetails": {
+    "Name": "Jack Stunell",
+    "SyncContributorsFromRepository": true
+  },
+  "Screenshots": [
+    {
+      "ImageUrl": "https://raw.githubusercontent.com/worm-brain/Umbraco.PropertyJsonViewer/main/docs/images/diff-tab.png",
+      "Caption": "The Diff tab: a block list's stored draft beside the value its property editor holds, with the differences highlighted."
+    },
+    {
+      "ImageUrl": "https://raw.githubusercontent.com/worm-brain/Umbraco.PropertyJsonViewer/main/docs/images/property-action-menu.png",
+      "Caption": "View raw value in the \"...\" menu of every property, whichever package its editor comes from."
+    },
+    {
+      "ImageUrl": "https://raw.githubusercontent.com/worm-brain/Umbraco.PropertyJsonViewer/main/docs/images/stored-tab.png",
+      "Caption": "The Stored tab: the stored draft exactly as the database holds it, with its storage type."
+    },
+    {
+      "ImageUrl": "https://raw.githubusercontent.com/worm-brain/Umbraco.PropertyJsonViewer/main/docs/images/raw-save-review.png",
+      "Caption": "A raw save: a warning, a review of the difference and the property alias typed to confirm."
+    },
+    {
+      "ImageUrl": "https://raw.githubusercontent.com/worm-brain/Umbraco.PropertyJsonViewer/main/docs/images/permissions.png",
+      "Caption": "Two document permissions, off for everyone after install, set per user group or per document."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+name: Bug report
+description: Something Property JSON Viewer does wrong. Reports welcome from humans and AI agents alike.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. A copy-pasteable repro beats a description.
+        Reports are welcome from anyone, including AI agents - see CONTRIBUTING.md.
+        (Note: filing a bug does not mean you should open a PR. PRs are issue-first and
+        invitation-only; wait for this issue to be labelled `accepted` first.)
+        A security problem is the exception: report it privately, as SECURITY.md describes.
+  - type: input
+    id: package-version
+    attributes:
+      label: Package version
+      description: The Umbraco.Community.PropertyJsonViewer version installed on the site.
+      placeholder: e.g. 17.0.0
+    validations:
+      required: true
+  - type: input
+    id: umbraco-version
+    attributes:
+      label: Umbraco version
+      placeholder: e.g. 17.7.0
+    validations:
+      required: true
+  - type: input
+    id: property-editor
+    attributes:
+      label: Property editor
+      description: The property editor of the property involved, as the drawer shows it, and the package it comes from if it is not Umbraco's own.
+      placeholder: e.g. Umbraco.BlockList (UI Umb.PropertyEditorUi.BlockList)
+    validations:
+      required: false
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What you did, step by step. Redact secrets and personal data from any stored values you paste.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+      description: What you saw, and any error from the browser console or the site's log.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: e.g. Chrome 141 on Windows 11
+    validations:
+      required: false

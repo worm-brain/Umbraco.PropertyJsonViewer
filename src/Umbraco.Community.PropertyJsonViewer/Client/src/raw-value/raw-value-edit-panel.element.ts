@@ -12,7 +12,9 @@ import "./value-diff.element.js";
 /**
  * Edits the stored draft and saves it straight to the database (ADR 0005), in two steps: edit, then review the
  * difference and confirm by typing the property alias. Dispatches `saved` once the value is stored and the
- * document workspace has reloaded, and `cancel` when the user backs out.
+ * document workspace has reloaded, and `cancel` when the user backs out. Both are dispatched on the panel only,
+ * without bubbling: a `cancel` that bubbled out of the drawer would reach the modal's `<dialog>`, which closes
+ * the whole drawer on `cancel`.
  *
  * The open document workspace still holds the old value after a raw save, and a normal Save would write it back
  * over the raw edit. So the panel refuses to save while the workspace has unsaved changes, and reloads the
@@ -84,7 +86,7 @@ export class RawValueEditPanelElement extends UmbLitElement {
 
     await workspace?.reload();
     this._saving = false;
-    this.dispatchEvent(new CustomEvent("saved", { bubbles: true, composed: true }));
+    this.dispatchEvent(new CustomEvent("saved"));
   }
 
   override render() {
@@ -121,6 +123,7 @@ export class RawValueEditPanelElement extends UmbLitElement {
         .original=${comparison.original}
         .modified=${comparison.modified}
         language=${comparison.language}
+        modified-label="Value to save"
       ></pjv-value-diff>
       <div class="confirm">
         <label for="confirmation">Type <code>${alias}</code> to confirm</label>
@@ -141,7 +144,7 @@ export class RawValueEditPanelElement extends UmbLitElement {
       <uui-button
         label="Cancel"
         look="secondary"
-        @click=${() => this.dispatchEvent(new CustomEvent("cancel", { bubbles: true, composed: true }))}
+        @click=${() => this.dispatchEvent(new CustomEvent("cancel"))}
       ></uui-button>
       <uui-button label="Review changes" look="primary" @click=${this.#review}></uui-button>
     `;

@@ -53,6 +53,11 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
 
   #tabs: Array<RawValueTab> = [];
 
+  // Tabs shown at least once. Their panels stay rendered, hidden while another tab is active, so switching tabs
+  // never removes a code editor: Umbraco's umb-code-editor throws "Container not found" when it is removed
+  // before Monaco has finished loading, which a quick switch away from a tab just opened would do.
+  #visitedTabs = new Set<RawValueTab>();
+
   constructor() {
     super();
     // The modal forwards context requests to the element that opened it, so this is the property whose "..."
@@ -99,6 +104,7 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
     super.connectedCallback();
     this.#tabs = availableTabs(this.data?.entityType ?? "");
     this._tab = initialTab(this.#tabs, rememberedTab);
+    this.#visitedTabs.add(this._tab);
     // Only a document property has a stored value of its own to ask for (ADR 0003).
     if (this.#tabs.includes("stored")) void this.#loadStored();
   }
@@ -120,6 +126,7 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
   }
 
   #selectTab(tab: RawValueTab) {
+    this.#visitedTabs.add(tab);
     this._tab = tab;
     rememberedTab = tab;
   }
@@ -143,7 +150,14 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
               ></uui-tab>`,
           )}
         </uui-tab-group>
-        <div class="panel" role="tabpanel" aria-label=${TAB_LABELS[this._tab]}>${this.#renderPanel()}</div>
+        ${repeat(
+          this.#tabs.filter((tab) => this.#visitedTabs.has(tab)),
+          (tab) => tab,
+          (tab) =>
+            html`<div class="panel" role="tabpanel" aria-label=${TAB_LABELS[tab]} ?hidden=${tab !== this._tab}>
+              ${this.#renderPanel(tab)}
+            </div>`,
+        )}
         <div slot="actions">
           <uui-button label="Close" look="secondary" @click=${() => this._rejectModal()}></uui-button>
         </div>
@@ -175,8 +189,8 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
     `;
   }
 
-  #renderPanel() {
-    switch (this._tab) {
+  #renderPanel(tab: RawValueTab) {
+    switch (tab) {
       case "editor":
         return html`
           ${this.#renderNoStoredValueNote()}
@@ -247,11 +261,14 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
                     @saved=${this.#onSaved}
                     @cancel=${() => (this._editing = false)}
                   ></pjv-raw-value-edit-panel>`
-                : html`<pjv-value-view
-                    label="Stored draft value"
-                    .display=${displayStoredValue(stored.value.draft)}
-                  ></pjv-value-view>`
+                : nothing
             }
+            <!-- Hidden rather than removed while editing, for the same reason as the tab panels. -->
+            <pjv-value-view
+              label="Stored draft value"
+              ?hidden=${this._editing}
+              .display=${displayStoredValue(stored.value.draft)}
+            ></pjv-value-view>
           </uui-box>
           <uui-box headline="Stored published">
             ${
@@ -305,6 +322,11 @@ export class RawValueModalElement extends UmbModalBaseElement<RawValueModalData,
 
       .panel {
         margin-top: var(--uui-size-space-4);
+      }
+
+      /* Makes the hidden attribute win over an element's own :host display, such as pjv-value-view's. */
+      [hidden] {
+        display: none;
       }
 
       dl {

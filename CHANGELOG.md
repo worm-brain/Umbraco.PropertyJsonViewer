@@ -1,8 +1,10 @@
 # Changelog
 
-All notable changes to this package are recorded here. Versions follow one line per Umbraco major (17.x, 18.x).
+All notable changes to this package are recorded here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow one line per Umbraco major (17.x, 18.x),
+released together under one heading.
 
-## Unreleased
+## [Unreleased]
 
 ### Added
 
@@ -27,8 +29,15 @@ All notable changes to this package are recorded here. Versions follow one line 
 - Safety rails on raw saves: a warning that the value bypasses the property editor, a review step showing the
   difference from the stored draft, confirmation by typing the property alias, and a note after saving that the
   draft is not published and the previous version can be rolled back.
+- The NuGet package carries a short, text-only readme that links to the full documentation on GitHub, because
+  nuget.org cannot show the README's screenshots.
 
 ### Fixed
 
+- **Cancel** in a raw edit returns to the stored draft instead of closing the whole drawer.
+- Each drawer tab keeps its content when you switch away and back, instead of being rebuilt. Switching tabs
+  straight after opening the drawer no longer logs "Container not found" errors in the browser console.
+- Screen readers announce the two sides of the Diff tab and of the raw save review by name ("Stored draft", "Editor
+  value", "Value to save") instead of as unnamed text boxes.
 - Error messages from the package's API (for example "The document could not be found") are shown in the
   drawer instead of a generic server error.
