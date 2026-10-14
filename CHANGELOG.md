@@ -1,8 +1,10 @@
 # Changelog
 
-All notable changes to this package are recorded here. Versions follow one line per Umbraco major (17.x, 18.x).
+All notable changes to this package are recorded here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions follow one line per Umbraco major (17.x, 18.x),
+released together under one heading.
 
-## Unreleased
+## [Unreleased]
 
 ### Added
 
@@ -27,6 +29,8 @@ All notable changes to this package are recorded here. Versions follow one line 
 - Safety rails on raw saves: a warning that the value bypasses the property editor, a review step showing the
   difference from the stored draft, confirmation by typing the property alias, and a note after saving that the
   draft is not published and the previous version can be rolled back.
+- The NuGet package carries a short, text-only readme that links to the full documentation on GitHub, because
+  nuget.org cannot show the README's screenshots.
 
 ### Fixed
 
