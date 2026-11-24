@@ -6,6 +6,10 @@ released together under one heading.
 
 ## [Unreleased]
 
+## [17.0.0] and [18.0.0] - 2026-11-24
+
+The first release: `17.0.0` for Umbraco 17 and `18.0.0` for Umbraco 18.
+
 ### Added
 
 - "View raw value" in the "..." menu of every property, including properties whose editor comes from another
